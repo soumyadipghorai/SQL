@@ -22,3 +22,7 @@ SELECT org.id
 FROM Weather AS org, Weather AS dup 
 WHERE dup.temperature<org.temperature
 AND DATEDIFF(org.recordDate,dup.recordDate)=1;
+
+SELECT w1.id AS Id
+FROM Weather w1, Weather w2
+WHERE DATEDIFF(w1.recordDate, w2.recordDate) = 1 AND (w1.temperature > w2.temperature);

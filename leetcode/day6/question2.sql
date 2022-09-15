@@ -47,6 +47,8 @@
 
 -- Return the result table in any order.
 
+-- solution 1 : 
+
 SELECT s.name 
 FROM Orders AS o
 
@@ -57,3 +59,14 @@ RIGHT JOIN SalesPerson AS s
 ON s.sales_id=o.sales_id
 
 WHERE o.sales_id IS NULL;
+
+
+-- solution 2 :
+SELECT sp.name  FROM SalesPerson sp
+WHERE sp.sales_id NOT IN
+(
+    SELECT ord.sales_id 
+    FROM Orders ord
+    JOIN Company comp ON comp.com_id = ord.com_id 
+    WHERE comp.name = 'RED'
+)
