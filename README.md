@@ -1,4 +1,4 @@
-# Machine learning algorithms from scratch : 
+# SQL : 
 
 I have been learning and practicing SQL from youtube, W3 school, leetcode and other resources. These are some of the problems that I encountered along the way.
 
