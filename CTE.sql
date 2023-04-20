@@ -1,4 +1,4 @@
- CREATE TABLE emp (
+CREATE TABLE emp (
     emp_id INT PRIMARY KEY, 
     emp_name VARCHAR(20), 
     department_id INT, 
@@ -33,3 +33,87 @@ max_salary AS (
 )
 SELECT * FROM emp 
 INNER JOIN max_salary ON salary < max_sal;
+
+
+
+-- avg order 
+-- ======= subquerry ======= 
+-- query3(query2(query1))
+SELECT AVG(total_orders_per_customer) AS avg_orders_per_customer FROM (
+    SELECT customer_id, COUNT(DISTINCT(order_id)) AS total_orders_per_customer
+    FROM orders 
+    GROUP BY customer_id
+) AS T;
+
+-- ===== CTE =====
+-- you have to run both the queries together 
+-- the results table is stored in memory 
+-- query 1
+-- query 2 
+-- query 3
+WITH total_orders (customer_id, total_orders_per_customer) AS (
+    SELECT customer_id, COUNT(DISTINCT(order_id)) AS total_orders_per_customer
+    FROM orders 
+    GROUP BY customer_id
+)
+SELECT AVG(total_orders_per_customer) AS avg_orders_per_customer 
+FROM total_orders;
+
+-- people who places orders more than avg orders  
+-- subquery
+-- where 
+SELECT * FROM (
+    SELECT customer_id, COUNT(DISTINCT(order_id)) AS total_orders_per_customer
+    FROM orders 
+    GROUP BY customer_id
+) AS total_orders
+WHERE total_orders_per_customer >= (
+    SELECT AVG(total_orders_per_customer) AS avg_orders_per_customer FROM (
+        SELECT customer_id, COUNT(DISTINCT(order_id)) AS total_orders_per_customer
+        FROM orders 
+        GROUP BY customer_id
+    ) AS T
+);
+
+-- join  
+SELECT * FROM (
+    SELECT customer_id, COUNT(DISTINCT(order_id)) AS total_orders_per_customer
+    FROM orders 
+    GROUP BY customer_id
+) AS total_orders
+JOIN 
+SELECT * FROM (
+    SELECT AVG(total_orders_per_customer) AS avg_orders_per_customer FROM (
+        SELECT customer_id, COUNT(DISTINCT(order_id)) AS total_orders_per_customer
+        FROM orders 
+        GROUP BY customer_id
+    ) AS T
+) AS avg_orders 
+ON total_orders.total_orders_per_customer > avg_orders.avg_orders_per_customer;
+
+-- CTE
+-- select statement you can use only in the next immediate line  
+-- it can improve the performance in some cases 
+WITH total_orders(customer_id, total_orders_per_customer) AS (
+    SELECT customer_id, COUNT(DISTINCT(order_id)) AS total_orders_per_customer
+    FROM orders 
+    GROUP BY customer_id
+), 
+avg_orders(avg_orders_per_customer) AS (
+    SELECT AVG(total_orders_per_customer) AS avg_orders_per_customer 
+    FROM total_orders
+)
+SELECT * 
+FROM total_orders WHERE total_orders.total_orders_per_customer >= (
+    SELECT avg_orders_per_customer 
+    FROM avg_orders
+);
+
+-- in some cases CTE might be slower e.g. 
+SELECT * FROM orders WHERE order_id = 1000;
+-- is much faster than 
+WITH orders_cte AS (
+    SELECT * FROM orders 
+)
+SELECT * FROM orders_cte WHERE order_id = 1000;
+-- also the indexing is not proper in CTE but the modern systems are compatible with this 
