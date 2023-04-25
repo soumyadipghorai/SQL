@@ -5,7 +5,7 @@ CREATE TABLE emp (
     salary INT,
     manager_id INT, 
     emp_age INT
-) 
+);
 
 INSERT INTO emp VALUES(1, 'ankit', 100, 10000, 4, 39);
 INSERT INTO emp VALUES(2, 'mohit', 100, 15000, 5, 48);
